@@ -25,12 +25,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # 动态开关：生产环境默认关闭测试，本地开发可手动开启 (-DBUILD_TESTING=ON)
 option(BUILD_TESTING "Build the testing tree" OFF)
 
-if(NOT EXISTS "${CMAKE_SOURCE_DIR}/compile_commands.json")
-    file(CREATE_LINK 
-        "${CMAKE_BINARY_DIR}/compile_commands.json" 
-        "${CMAKE_SOURCE_DIR}/compile_commands.json" 
-        SYMBOLIC
-    )
+# 仅在 Out-of-source 编译时，才需要把 compile\_commands.json 链接到源码根目录
+if(NOT CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
+    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/compile_commands.json")
+        file(CREATE_LINK 
+            "${CMAKE_BINARY_DIR}/compile_commands.json" 
+            "${CMAKE_SOURCE_DIR}/compile_commands.json" 
+            SYMBOLIC
+        )
+    endif()
 endif()
 
 if(MSVC)
@@ -140,7 +143,7 @@ target_link_libraries(mqtt_router_agent PRIVATE
     mqtt_router_lib
 )
 
-# Tell CMake to install the program to the system's bin directory
+# 【新增这一段】告诉 CMake 将程序安装到系统的 bin 目录下
 install(TARGETS mqtt_router_agent DESTINATION bin)
 
 # ---------------------------------------------------------------------------
