@@ -12,6 +12,15 @@ project(MqttRouterAgent
 )
 
 # ---------------------------------------------------------------------------
+# [新增] 修复交叉编译环境下 GCC 的 #include_next <stdlib.h> 去重漏洞
+# ---------------------------------------------------------------------------
+if(CMAKE_CROSSCOMPILING)
+    # 告诉 CMake：Sysroot 的 /usr/include 是编译器的原生默认搜索路径。
+    # 只要 Paho MQTT (或其他系统库) 的头文件在这个目录下，就不要生成 -I 参数！
+    list(APPEND CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_SYSROOT}/usr/include")
+    list(APPEND CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "${CMAKE_SYSROOT}/usr/include")
+endif()
+# ---------------------------------------------------------------------------
 # 全局编译选项 & 核心设置
 # ---------------------------------------------------------------------------
 set(CMAKE_C_STANDARD 11)
